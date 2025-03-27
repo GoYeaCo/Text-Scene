@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Theater Script Editor</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Roboto:wght@300;400;500&display=swap">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+</head>
+<body>
+    <div class="app-container">
+        <header class="main-header">
+            <div class="logo">
+                <i class="fas fa-theater-masks"></i>
+                <h1>Theater Script Editor</h1>
+            </div>
+            <div class="toolbar">
+                <button id="new-script" class="btn" title="New Script">
+                    <i class="fas fa-file"></i>
+                </button>
+                <button id="open-script" class="btn" title="Open Script">
+                    <i class="fas fa-folder-open"></i>
+                </button>
+                <button id="save-script" class="btn" title="Save Script">
+                    <i class="fas fa-save"></i>
+                </button>
+                <button id="export-pdf" class="btn" title="Export to PDF">
+                    <i class="fas fa-file-pdf"></i>
+                </button>
+                <button id="print-script" class="btn" title="Print">
+                    <i class="fas fa-print"></i>
+                </button>
+                <div class="separator"></div>
+                <button id="undo" class="btn" title="Undo">
+                    <i class="fas fa-undo"></i>
+                </button>
+                <button id="redo" class="btn" title="Redo">
+                    <i class="fas fa-redo"></i>
+                </button>
+                <div class="separator"></div>
+                <button id="format-bold" class="btn format-btn" title="Bold">
+                    <i class="fas fa-bold"></i>
+                </button>
+                <button id="format-italic" class="btn format-btn" title="Italic">
+                    <i class="fas fa-italic"></i>
+                </button>
+                <button id="format-underline" class="btn format-btn" title="Underline">
+                    <i class="fas fa-underline"></i>
+                </button>
+                <select id="font-size" class="select-input" title="Font Size">
+                    <option value="1">8pt</option>
+                    <option value="2">10pt</option>
+                    <option value="3">12pt</option>
+                    <option value="4" selected>14pt</option>
+                    <option value="5">18pt</option>
+                    <option value="6">24pt</option>
+                    <option value="7">36pt</option>
+                </select>
+                <select id="font-family" class="select-input" title="Font Family">
+                    <option value="Arial, sans-serif">Arial</option>
+                    <option value="'Times New Roman', serif">Times New Roman</option>
+                    <option value="'Courier New', monospace">Courier New</option>
+                    <option value="'Playfair Display', serif" selected>Playfair Display</option>
+                    <option value="'Roboto', sans-serif">Roboto</option>
+                </select>
+            </div>
+        </header>
+
+        <div class="main-content">
+            <div class="sidebar">
+                <div class="sidebar-header">
+                    <h3>Script Elements</h3>
+                </div>
+                <div class="sidebar-content">
+                    <button class="element-btn" data-element="act">
+                        <i class="fas fa-bookmark"></i> Act
+                    </button>
+                    <button class="element-btn" data-element="scene">
+                        <i class="fas fa-map-marker-alt"></i> Scene
+                    </button>
+                    <button class="element-btn" data-element="character">
+                        <i class="fas fa-user"></i> Character
+                    </button>
+                    <button class="element-btn" data-element="dialogue">
+                        <i class="fas fa-comment"></i> Dialogue
+                    </button>
+                    <button class="element-btn" data-element="parenthetical">
+                        <i class="fas fa-comment-dots"></i> Parenthetical
+                    </button>
+                    <button class="element-btn" data-element="stage-direction">
+                        <i class="fas fa-directions"></i> Stage Direction
+                    </button>
+                    <button class="element-btn" data-element="transition">
+                        <i class="fas fa-exchange-alt"></i> Transition
+                    </button>
+                    <button class="element-btn" data-element="note">
+                        <i class="fas fa-sticky-note"></i> Note
+                    </button>
+                </div>
+                
+                <div class="sidebar-header">
+                    <h3>Characters</h3>
+                    <button id="add-character" class="btn-small">
+                        <i class="fas fa-plus"></i>
+                    </button>
+                </div>
+                <div class="characters-list" id="characters-list">
+                    <!-- Characters will be added here dynamically -->
+                </div>
+            </div>
+
+            <div class="editor-container">
+                <div class="script-title-container">
+                    <input type="text" id="script-title" placeholder="Untitled Script" class="script-title">
+                    <input type="text" id="script-author" placeholder="Author Name" class="script-author">
+                </div>
+                <div id="editor" class="editor" contenteditable="true"></div>
+            </div>
+
+            <div class="properties-panel">
+                <div class="panel-header">
+                    <h3>Properties</h3>
+                </div>
+                <div class="panel-content">
+                    <div class="property-group">
+                        <h4>Text</h4>
+                        <div class="color-picker">
+                            <label for="text-color">Color:</label>
+                            <input type="color" id="text-color" value="#000000">
+                        </div>
+                        <div class="property-row">
+                            <label for="text-align">Alignment:</label>
+                            <div class="button-group">
+                                <button id="align-left" class="btn-small" title="Align Left">
+                                    <i class="fas fa-align-left"></i>
+                                </button>
+                                <button id="align-center" class="btn-small" title="Align Center">
+                                    <i class="fas fa-align-center"></i>
+                                </button>
+                                <button id="align-right" class="btn-small" title="Align Right">
+                                    <i class="fas fa-align-right"></i>
+                                </button>
+                                <button id="align-justify" class="btn-small" title="Justify">
+                                    <i class="fas fa-align-justify"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="property-group">
+                        <h4>Element Style</h4>
+                        <div class="property-row">
+                            <label for="element-spacing">Spacing:</label>
+                            <input type="range" id="element-spacing" min="0" max="50" value="10">
+                        </div>
+                        <div class="property-row">
+                            <label for="element-indent">Indent:</label>
+                            <input type="range" id="element-indent" min="0" max="100" value="0">
+                        </div>
+                    </div>
+                    
+                    <div class="property-group">
+                        <h4>Page Setup</h4>
+                        <div class="property-row">
+                            <label for="page-size">Page Size:</label>
+                            <select id="page-size">
+                                <option value="a4" selected>A4</option>
+                                <option value="letter">Letter</option>
+                                <option value="legal">Legal</option>
+                            </select>
+                        </div>
+                        <div class="property-row">
+                            <label for="page-orientation">Orientation:</label>
+                            <select id="page-orientation">
+                                <option value="portrait" selected>Portrait</option>
+                                <option value="landscape">Landscape</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modals -->
+    <div id="character-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Add Character</h2>
+                <button class="close-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="character-name">Character Name:</label>
+                    <input type="text" id="character-name" placeholder="Enter character name">
+                </div>
+                <div class="form-group">
+                    <label for="character-description">Description:</label>
+                    <textarea id="character-description" placeholder="Brief description of the character"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="character-color">Color:</label>
+                    <input type="color" id="character-color" value="#3498db">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="save-character" class="btn primary">Save Character</button>
+                <button class="btn cancel close-modal">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="notification" class="notification">
+        <i class="fas fa-check-circle"></i>
+        <span id="notification-message"></span>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
